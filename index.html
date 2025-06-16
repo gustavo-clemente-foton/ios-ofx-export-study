@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Estudo de Viabilidade: Exportação de Extrato OFX 2.3.0 no Caixa Tem</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <!-- 
+    Plano da Narrativa:
+    1. Introdução: Apresentação do estudo, objetivo e conclusão positiva.
+    2. O Desafio Estratégico: Por que a interoperabilidade é crucial para o Caixa Tem.
+    3. Prova de Conceito (POC): Demonstração do sucesso, mostrando que a geração via iOS é viável.
+    4. Validação Cruzada: Prova de compatibilidade com ferramentas de mercado.
+    5. Decodificando o Padrão OFX: Explicação didática da estrutura e dos tipos de dados.
+    6. Fatores Críticos de Sucesso: Checklist das regras de implementação que garantem a qualidade.
+    7. Próximos Passos e Conclusão: Sumário do valor agregado e o caminho para produção.
+
+    Escolha de Visualizações (Sem SVG/Mermaid):
+    - Estrutura OFX -> Fluxograma com `div` e `border` do Tailwind.
+    - Tipos de Dados -> Listas estilizadas com destaques para valores do exemplo.
+    - Criticidade dos Campos -> Gráfico de Barras Horizontais com Chart.js/Canvas.
+    - Checklist -> Lista estilizada com HTML/CSS e ícones Unicode.
+
+    Confirmação: Nenhum SVG ou Mermaid.js foi utilizado na geração deste artefato. Toda a visualização é feita com HTML/CSS/Tailwind ou via Canvas com a biblioteca Chart.js.
+    
+    Paleta de Cores Selecionada: Brilliant Blues
+    -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F8FAFC;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            height: 350px;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            max-height: 450px;
+        }
+        @media (min-width: 768px) { .chart-container { height: 400px; } }
+        
+        .flow-box {
+            border: 2px solid #94D2BD;
+            background-color: white;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            text-align: center;
+            font-weight: 600;
+            color: #005F73;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+        }
+        .flow-arrow {
+            font-size: 2rem;
+            color: #94D2BD;
+            transform: rotate(90deg);
+        }
+        @media (min-width: 768px) { .flow-arrow { transform: rotate(0deg); } }
+
+        .highlight-badge {
+            background-color: #fef3c7;
+            color: #b45309;
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 2px 8px;
+            border-radius: 9999px;
+            margin-left: 8px;
+        }
+        .code-block {
+            background-color: #0F172A;
+            color: #E2E8F0;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.875rem;
+            white-space: pre-wrap;
+            overflow-x: auto;
+            max-height: 400px;
+        }
+        .code-block .tag { color: #60A5FA; }
+        .code-block .attr-name { color: #93C5FD; }
+        .code-block .attr-value { color: #A5B4FC; }
+        .code-block .content { color: #E2E8F0; }
+        .placeholder-image {
+            border: 2px dashed #94D2BD;
+            background-color: #f0fdfa;
+            color: #0A9396;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 0.5rem;
+            padding: 2rem;
+            text-align: center;
+            font-weight: 600;
+            min-height: 200px;
+        }
+        .section-title {
+            font-size: 2.25rem;
+            line-height: 2.5rem;
+            font-weight: 700;
+            color: #005F73;
+            text-align: center;
+            margin-bottom: 2rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 3px solid #94D2BD;
+            display: inline-block;
+        }
+    </style>
+</head>
+<body class="text-slate-800">
+
+    <div class="container mx-auto p-4 md:p-8 max-w-6xl">
+        
+        <header class="text-center mb-12 md:mb-16">
+            <p class="text-lg font-semibold text-[#0A9396]">Estudo de Viabilidade Técnica</p>
+            <h1 class="text-4xl md:text-5xl font-bold text-[#005F73] mb-4">Implementação da Exportação de Extrato OFX no App Caixa Tem</h1>
+            <p class="text-slate-500 text-sm">Preparado por: Gustavo Clemente, Foton | Desenvolvedor iOS, Projeto Caixa Tem</p>
+            <p class="text-slate-500 text-sm">Data: 13/06/2025</p>
+        </header>
+
+        <main class="space-y-12 md:space-y-20">
+
+            <section class="bg-white p-8 rounded-xl shadow-lg border-l-8 border-[#0A9396]">
+                <h2 class="text-3xl font-bold text-[#005F73] mb-4">Resumo Executivo e Conclusão</h2>
+                <p class="text-slate-600 mb-4 text-lg">Este estudo foi conduzido para avaliar a viabilidade de implementar uma nova funcionalidade no aplicativo Caixa Tem para iOS: a **exportação do extrato do cliente no formato padrão de mercado OFX 2.3.0**. O objetivo é aumentar o valor percebido do aplicativo, promovendo a interoperabilidade e o empoderamento do cliente sobre seus dados financeiros.</p>
+                <div class="font-semibold text-[#005F73] bg-teal-50 p-6 rounded-lg border border-teal-200">
+                    <p class="text-xl">A conclusão final é que a implementação é <span class="font-extrabold">totalmente viável</span>, de baixo risco técnico e de alto valor estratégico para o produto.</p>
+                    <p class="mt-2">Realizamos uma Prova de Conceito (POC) que demonstrou a capacidade de gerar, diretamente do front-end iOS, um arquivo OFX bem-formado, completo e compatível com as especificações, validado por ferramentas externas.</p>
+                </div>
+            </section>
+            
+            <section class="text-center">
+                <h2 class="section-title">1. O Desafio Estratégico: Por que OFX?</h2>
+                <p class="text-slate-600 mb-8 max-w-3xl mx-auto text-lg">Em um ecossistema financeiro aberto, permitir que os clientes utilizem seus dados em outras plataformas não é apenas uma funcionalidade, é um pilar de confiança e retenção. A exportação OFX posiciona o Caixa Tem como um aplicativo moderno e alinhado às melhores práticas do mercado.</p>
+            </section>
+            
+            <section class="bg-white p-8 rounded-xl shadow-lg">
+                <h2 class="text-3xl font-bold text-[#005F73] text-center mb-8">2. Prova de Conceito (POC): Sucesso na Prática</h2>
+                <p class="text-slate-600 mb-8 max-w-3xl mx-auto text-center">Para validar a viabilidade, desenvolvemos um protótipo em Swift que consome dados de transação e gera um arquivo OFX. O processo foi um sucesso, resultando no arquivo final abaixo, que passou em todas as nossas verificações de conformidade.</p>
+                <div class="code-block max-w-4xl mx-auto">
+                    <pre><code>&lt;?xml version="1.0" encoding="UTF-8" standalone="no"?&gt;
+&lt;?OFX OFXHEADER="200" VERSION="230" SECURITY="NONE" OLDFILEUID="NONE" NEWFILEUID="DC4CE596-08C6-4E35-993B-229245AF7036"?&gt;
+&lt;OFX&gt;
+  &lt;SIGNONMSGSRSV1&gt;
+    &lt;SONRS&gt;
+      &lt;STATUS&gt;
+        &lt;CODE&gt;0&lt;/CODE&gt;
+        &lt;SEVERITY&gt;INFO&lt;/SEVERITY&gt;
+      &lt;/STATUS&gt;
+      &lt;DTSERVER&gt;20250612164943&lt;/DTSERVER&gt;
+      &lt;USERID&gt;ana.oliveira&lt;/USERID&gt;
+      &lt;LANGUAGE&gt;POR&lt;/LANGUAGE&gt;
+      &lt;FI&gt;
+        &lt;ORG&gt;Meu Banco Digital&lt;/ORG&gt;
+        &lt;FID&gt;341&lt;/FID&gt;
+      &lt;/FI&gt;
+      &lt;APPID&gt;MeuAppFinanceiro&lt;/APPID&gt;
+      &lt;APPVER&gt;1.0&lt;/APPVER&gt;
+    &lt;/SONRS&gt;
+  &lt;/SIGNONMSGSRSV1&gt;
+  &lt;BANKMSGSRSV1&gt;
+    &lt;STMTTRNRS&gt;
+      &lt;TRNUID&gt;DC4CE596-08C6-4E35-993B-229245AF7036&lt;/TRNUID&gt;
+      &lt;STATUS&gt;&lt;CODE&gt;0&lt;/CODE&gt;&lt;SEVERITY&gt;INFO&lt;/SEVERITY&gt;&lt;/STATUS&gt;
+      &lt;STMTRS&gt;
+        &lt;CURDEF&gt;BRL&lt;/CURDEF&gt;
+        &lt;BANKACCTFROM&gt;
+          &lt;BANKID&gt;341&lt;/BANKID&gt;
+          &lt;BRANCHID&gt;1234&lt;/BRANCHID&gt;
+          &lt;ACCTID&gt;56789-0&lt;/ACCTID&gt;
+          &lt;ACCTTYPE&gt;CHECKING&lt;/ACCTTYPE&gt;
+        &lt;/BANKACCTFROM&gt;
+        &lt;BANKTRANLIST&gt;
+          &lt;DTSTART&gt;20250608&lt;/DTSTART&gt;
+          &lt;DTEND&gt;20250609&lt;/DTEND&gt;
+          &lt;STMTTRN&gt;
+            &lt;TRNTYPE&gt;CREDIT&lt;/TRNTYPE&gt;
+            &lt;DTPOSTED&gt;20250608&lt;/DTPOSTED&gt;
+            &lt;TRNAMT&gt;4500.00&lt;/TRNAMT&gt;
+            &lt;FITID&gt;2E7EF775-A0EE-426A-B6ED-C510F091A225&lt;/FITID&gt;
+            &lt;NAME&gt;SALARIO&lt;/NAME&gt;
+            &lt;MEMO&gt;Maio&lt;/MEMO&gt;
+          &lt;/STMTTRN&gt;
+          &lt;STMTTRN&gt;
+            &lt;TRNTYPE&gt;PAYMENT&lt;/TRNTYPE&gt;
+            &lt;DTPOSTED&gt;20250609&lt;/DTPOSTED&gt;
+            &lt;TRNAMT&gt;-150.75&lt;/TRNAMT&gt;
+            &lt;FITID&gt;E8B0EB39-F227-4BFD-8C06-366D6200EB06&lt;/FITID&gt;
+            &lt;NAME&gt;CONTA LUZ&lt;/NAME&gt;
+            &lt;MEMO&gt;CPFL&lt;/MEMO&gt;
+          &lt;/STMTTRN&gt;
+        &lt;/BANKTRANLIST&gt;
+        &lt;LEDGERBAL&gt;
+          &lt;BALAMT&gt;4874.75&lt;/BALAMT&gt;
+          &lt;DTASOF&gt;20250612164943&lt;/DTASOF&gt;
+        &lt;/LEDGERBAL&gt;
+        &lt;AVAILBAL&gt;
+          &lt;BALAMT&gt;4874.75&lt;/BALAMT&gt;
+          &lt;DTASOF&gt;20250612164943&lt;/DTASOF&gt;
+        &lt;/AVAILBAL&gt;
+      &lt;/STMTRS&gt;
+    &lt;/STMTTRNRS&gt;
+  &lt;/BANKMSGSRSV1&gt;
+&lt;/OFX&gt;</code></pre>
+                </div>
+            </section>
+
+             <section class="bg-white p-8 rounded-xl shadow-lg">
+                <h2 class="text-3xl font-bold text-[#005F73] text-center mb-8">3. Validação Cruzada e Prova de Compatibilidade</h2>
+                <p class="text-slate-600 mb-8 max-w-3xl mx-auto text-center">Um arquivo OFX só tem valor se for aceito pelas ferramentas de mercado. Para garantir a máxima compatibilidade, validamos o arquivo gerado pela nossa POC em duas frentes distintas, com 100% de sucesso em ambas.</p>
+                 <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div>
+                        <h3 class="text-xl font-bold text-slate-700 mb-2">Validação Automatizada (Python)</h3>
+                        <p class="text-slate-600 mb-4">Utilizamos um framework de testes em Python, com a biblioteca `ofxparse`, para verificar programaticamente a aderência do arquivo à especificação OFX 2.3.0. Nenhum erro estrutural ou de formato foi encontrado.</p>
+                        <div class="placeholder-image">
+                            [ Anexo A: Captura de Tela do Validador Python ]
+                        </div>
+                    </div>
+                     <div>
+                        <h3 class="text-xl font-bold text-slate-700 mb-2">Validação em Aplicação Real (GnuCash)</h3>
+                        <p class="text-slate-600 mb-4">O arquivo foi importado com sucesso no **GnuCash**, um dos mais populares softwares de gestão financeira open-source do mundo. As transações, saldos e datas foram interpretados e exibidos corretamente.</p>
+                        <div class="placeholder-image">
+                            [ Anexo B: Captura de Tela da Importação no GnuCash ]
+                        </div>
+                    </div>
+                 </div>
+            </section>
+
+             <section class="bg-white p-8 rounded-xl shadow-lg">
+                <h2 class="text-3xl font-bold text-[#005F73] text-center mb-8">4. Decodificando o Padrão: Tipos de Dados e Opções</h2>
+                <p class="text-slate-600 mb-8 max-w-3xl mx-auto text-center">A escolha correta dos valores para campos-chave como `<ACCTTYPE>` e `<TRNTYPE>` é fundamental para a compatibilidade. Nossa POC utilizou os tipos mais adequados para as operações do Caixa Tem.</p>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div class="bg-slate-50 p-6 rounded-lg border border-slate-200">
+                        <h3 class="text-xl font-bold text-[#005F73] mb-4">Tipos de Conta (`&lt;ACCTTYPE&gt;`)</h3>
+                        <ul class="space-y-3">
+                            <li class="flex justify-between items-center"><span><span class="font-semibold">CHECKING</span> - Conta Corrente/Pagamentos</span> <span class="highlight-badge">✔ Valor na POC</span></li>
+                            <li class="flex justify-between items-center"><span><span class="font-semibold">SAVINGS</span> - Conta Poupança</span></li>
+                            <li class="flex justify-between items-center"><span><span class="font-semibold">MONEYMRKT</span> - Conta de Mercado Monetário</span></li>
+                            <li class="flex justify-between items-center"><span><span class="font-semibold">CREDITLINE</span> - Linha de Crédito</span></li>
+                        </ul>
+                    </div>
+                    <div class="bg-slate-50 p-6 rounded-lg border border-slate-200">
+                        <h3 class="text-xl font-bold text-[#005F73] mb-4">Tipos de Transação (`&lt;TRNTYPE&gt;`)</h3>
+                         <ul class="space-y-3">
+                            <li class="flex justify-between items-center"><span><span class="font-semibold">CREDIT</span> - Crédito genérico / Depósito</span><span class="highlight-badge">✔ Valor na POC</span></li>
+                            <li class="flex justify-between items-center"><span><span class="font-semibold">PAYMENT</span> - Pagamento de conta/boleto</span><span class="highlight-badge">✔ Valor na POC</span></li>
+                            <li class="flex justify-between items-center"><span><span class="font-semibold">DEBIT</span> - Débito genérico / Saque</span></li>
+                            <li class="flex justify-between items-center"><span><span class="font-semibold">XFER</span> - Transferência entre contas</span></li>
+                            <li class="flex justify-between items-center"><span><span class="font-semibold">FEE</span> - Cobrança de Tarifa</span></li>
+                            <li class="flex justify-between items-center"><span><span class="font-semibold">INTEREST</span> - Juros ou Rendimento</span></li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <section class="bg-white p-8 rounded-xl shadow-lg">
+                <h2 class="text-3xl font-bold text-[#005F73] text-center mb-2">5. Fatores Críticos de Sucesso</h2>
+                <p class="text-slate-600 mb-8 max-w-3xl mx-auto text-center">Para garantir a qualidade e confiabilidade da feature, a implementação deve seguir rigorosamente as seguintes diretrizes, todas validadas na POC:</p>
+                <div class="chart-container">
+                    <canvas id="criticalFactorsChart"></canvas>
+                </div>
+            </section>
+            
+            <section class="bg-white p-8 rounded-xl shadow-lg">
+                <h2 class="text-3xl font-bold text-[#005F73] text-center mb-8">6. Conclusão e Próximos Passos</h2>
+                <p class="text-slate-600 mb-8 max-w-3xl mx-auto text-center">A Prova de Conceito demonstrou que a equipe possui o conhecimento técnico necessário e que a implementação da exportação OFX é uma adição de alto valor e baixo risco para o aplicativo Caixa Tem. O resultado será um app mais competitivo e alinhado às expectativas dos usuários modernos.</p>
+                 <ul class="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto text-center">
+                    <li class="bg-slate-50 p-4 rounded-lg border-t-4 border-teal-400">
+                        <div class="text-2xl font-bold text-teal-600 mb-2">Fase 1</div>
+                        <p class="font-semibold">Desenvolvimento</p>
+                        <p class="text-sm text-slate-500">Integrar a lógica `OFXGenerator` na UI do app e finalizar o fluxo do usuário.</p>
+                    </li>
+                     <li class="bg-slate-50 p-4 rounded-lg border-t-4 border-blue-400">
+                        <div class="text-2xl font-bold text-blue-600 mb-2">Fase 2</div>
+                        <p class="font-semibold">Qualidade e Testes</p>
+                        <p class="text-sm text-slate-500">Realizar testes de usabilidade com um grupo piloto e testes de regressão automatizados.</p>
+                    </li>
+                     <li class="bg-slate-50 p-4 rounded-lg border-t-4 border-indigo-400">
+                        <div class="text-2xl font-bold text-indigo-600 mb-2">Fase 3</div>
+                        <p class="font-semibold">Lançamento</p>
+                        <p class="text-sm text-slate-500">Disponibilizar a funcionalidade para todos os usuários nas próximas versões do aplicativo.</p>
+                    </li>
+                </ul>
+            </section>
+
+        </main>
+
+        <footer class="text-center mt-16 pt-8 border-t border-slate-200">
+            <p class="text-slate-500">Estudo de Viabilidade da Exportação OFX 2.3.0</p>
+            <p class="text-sm text-slate-400">Caixa Tem | Inovação e Tecnologia Financeira</p>
+        </footer>
+    </div>
+
+    <script>
+        const tooltipCallback = {
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        title: function(tooltipItems) {
+                            const item = tooltipItems[0];
+                            let label = item.chart.data.labels[item.dataIndex];
+                            if (Array.isArray(label)) {
+                              return label.join(' ');
+                            }
+                            return label;
+                        }
+                    }
+                }
+            }
+        };
+        
+        const processLabels = (labels) => {
+            return labels.map(label => {
+                if (label.length > 16) {
+                    const words = label.split(' ');
+                    const lines = [];
+                    let currentLine = '';
+                    words.forEach(word => {
+                        if ((currentLine + ' ' + word).trim().length > 16) {
+                            lines.push(currentLine.trim());
+                            currentLine = word;
+                        } else {
+                            currentLine = (currentLine + ' ' + word).trim();
+                        }
+                    });
+                    lines.push(currentLine.trim());
+                    return lines;
+                }
+                return label;
+            });
+        };
+
+        const criticalFactorsCtx = document.getElementById('criticalFactorsChart').getContext('2d');
+        new Chart(criticalFactorsCtx, {
+            type: 'bar',
+            data: {
+                labels: processLabels(['Unicidade do FITID', 'Sinais Corretos (TRNAMT)', 'Formato de Datas e Horas', 'Estrutura de Resposta (RS)', 'Codificação (UTF-8)']),
+                datasets: [{
+                    label: 'Nível de Importância',
+                    data: [100, 98, 95, 90, 85],
+                    backgroundColor: ['#EE9B00', '#005F73', '#0A9396', '#94D2BD', '#A9D8C8'],
+                    borderColor: '#FFFFFF',
+                    borderWidth: 2,
+                    borderRadius: 5
+                }]
+            },
+            options: {
+                 indexAxis: 'y',
+                 responsive: true,
+                 maintainAspectRatio: false,
+                 scales: {
+                    x: {
+                        display: false,
+                        beginAtZero: true,
+                        max: 100
+                    },
+                    y: {
+                        grid: { display: false },
+                        ticks: { color: '#475569', font: {size: 14} }
+                    }
+                 },
+                 plugins: {
+                    ...tooltipCallback.plugins,
+                    legend: {
+                        display: false
+                    },
+                     title: {
+                        display: true,
+                        text: 'Criticidade das Regras de Implementação',
+                        font: { size: 16, weight: 'bold' },
+                        color: '#005F73',
+                        padding: {
+                            bottom: 20
+                        }
+                    }
+                 }
+            }
+        });
+    </script>
+
+</body>
+</html>
