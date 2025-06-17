@@ -13,8 +13,8 @@
     Plano da Narrativa:
     1. Introdução: Apresentação do estudo, objetivo e conclusão positiva sobre MÚLTIPLOS formatos.
     2. O Desafio Estratégico: Por que a interoperabilidade é crucial para o Caixa Tem.
-    3. Prova de Conceito OFX: Foco na validação do padrão financeiro.
-    4. Prova de Conceito XLSX: Foco na validação do formato de planilhas.
+    3. Prova de Conceito (POC) OFX: Foco na validação do padrão financeiro e no código-fonte de referência.
+    4. Prova de Conceito (POC) XLSX: Foco na validação do formato de planilhas.
     5. Análise Comparativa e Técnica: Detalhes dos formatos e tipos de dados.
     6. Fatores Críticos de Sucesso: Checklist das regras de implementação que garantem a qualidade.
     7. Próximos Passos e Conclusão: Sumário do valor agregado e o caminho para produção.
@@ -121,11 +121,37 @@
             color: #bbb;
             text-decoration: none;
         }
+        .highlight-badge {
+            background-color: #fef3c7;
+            color: #b45309;
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 2px 8px;
+            border-radius: 9999px;
+            margin-left: 8px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            text-align: left;
+            padding: 12px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        th {
+            background-color: #f1f5f9;
+            font-weight: 600;
+            color: #005F73;
+        }
+        tr:hover {
+            background-color: #f8fafc;
+        }
     </style>
 </head>
 <body class="text-slate-800">
 
-    <div class="container mx-auto p-4 md:p-8 max-w-6xl">
+    <div class="container mx-auto p-4 md:p-8 max-w-7xl">
         
         <header class="text-center mb-12 md:mb-16">
             <p class="text-lg font-semibold text-[#0A9396]">Estudo de Viabilidade Técnica</p>
@@ -145,62 +171,154 @@
                 </div>
             </section>
             
-            <section class="text-center">
-                <h2 class="section-title">1. O Desafio Estratégico: Por que Múltiplos Formatos?</h2>
-                <p class="text-slate-600 mb-8 max-w-3xl mx-auto text-lg">Oferecer múltiplos formatos de exportação atende a diferentes perfis de usuário. Enquanto o **OFX** é o padrão para integração automatizada com softwares financeiros, o **XLSX** oferece flexibilidade para análises manuais, planilhas personalizadas e uso em uma vasta gama de aplicações, consolidando o Caixa Tem como uma ferramenta financeira completa.</p>
+            <section class="bg-white p-8 rounded-xl shadow-lg">
+                <h2 class="text-3xl font-bold text-[#005F73] text-center mb-8">1. Código-Fonte de Referência (Swift)</h2>
+                 <p class="text-slate-600 mb-8 max-w-3xl mx-auto text-center">A lógica de geração para OFX foi encapsulada na classe `OFXGenerator`. Este código é a base da nossa POC e serve como guia para a implementação final.</p>
+                <div class="code-block max-w-4xl mx-auto">
+                    <pre><code>// OFXGenerator.swift - Versão Corrigida e Alinhada
+import Foundation
+
+public final class OFXGenerator {
+    private let customer: Customer
+    // ... (demais propriedades)
+
+    public init(...) {
+        // ... (inicializadores)
+        // Configuração dos formatadores de data para o padrão OFX
+        self.ymdFormatter = DateFormatter()
+        self.ymdFormatter.dateFormat = "yyyyMMdd" 
+        // ...
+        self.fullDateFormatter = DateFormatter()
+        self.fullDateFormatter.dateFormat = "yyyyMMddHHmmss"
+        // ...
+    }
+
+    public func generate() -> String {
+        // ... (lógica de construção da string XML)
+        return xmlString
+    }
+
+    // MARK: - Métodos Privados de Construção
+    
+    private func buildSignOnBlock(serverDate: String) -> String {
+        // CORREÇÃO: Bloco alterado para Resposta (RS)
+        """
+          &lt;SIGNONMSGSRSV1&gt;
+            &lt;SONRS&gt;
+              &lt;STATUS&gt;
+                &lt;CODE&gt;0&lt;/CODE&gt;
+                &lt;SEVERITY&gt;INFO&lt;/SEVERITY&gt;
+              &lt;/STATUS&gt;
+              &lt;DTSERVER&gt;\\(serverDate)&lt;/DTSERVER&gt;
+              // ...
+            &lt;/SONRS&gt;
+          &lt;/SIGNONMSGSRSV1&gt;
+        """
+    }
+
+    private func buildPostedTransactionsList() -> String {
+        // ... (lógica de iteração e construção do bloco de transações)
+        for transaction in sortedTransactions {
+            let amountString = formatCurrency(transaction.amount) // Função crucial
+            listString += """
+                      &lt;STMTTRN&gt;
+                        // ...
+                        &lt;TRNAMT&gt;\\(amountString)&lt;/TRNAMT&gt;
+                        &lt;FITID&gt;\\(transaction.transactionId.escapingXMLCharacters)&lt;/FITID&gt;
+                        // ...
+                      &lt;/STMTTRN&gt;
+            """
+        }
+        return listString
+    }
+    
+    // Função auxiliar para garantir a formatação correta dos valores
+    private func formatCurrency(_ amount: Decimal) -> String {
+        let formatter = NumberFormatter()
+        formatter.minimumFractionDigits = 2
+        formatter.maximumFractionDigits = 2
+        formatter.decimalSeparator = "."
+        formatter.groupingSeparator = ""
+        return formatter.string(from: amount as NSDecimalNumber) ?? "0.00"
+    }
+}
+                    </code></pre>
+                </div>
             </section>
             
             <section class="bg-white p-8 rounded-xl shadow-lg">
-                <h2 class="text-3xl font-bold text-[#005F73] text-center mb-8">2. Prova de Conceito (POC) para OFX</h2>
-                <p class="text-slate-600 mb-8 max-w-3xl mx-auto text-center">A primeira POC validou a geração de arquivos no padrão OFX 2.3.0. O arquivo gerado foi testado com sucesso, garantindo a compatibilidade com sistemas financeiros.</p>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    <div>
-                        <h3 class="text-xl font-bold text-slate-700 mb-2">Anexo A: Validação Automatizada</h3>
-                        <p class="text-slate-600 mb-4 text-sm">Teste com script Python confirmou a aderência à especificação.</p>
+                <h2 class="text-3xl font-bold text-[#005F73] text-center mb-8">2. Validação da POC: Provas de Compatibilidade</h2>
+                <p class="text-slate-600 mb-8 max-w-3xl mx-auto text-center">O arquivo gerado foi submetido a uma validação rigorosa para garantir sua integridade e aceitação por ferramentas de mercado.</p>
+                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <div class="flex flex-col">
+                        <h3 class="text-xl font-bold text-slate-700 mb-2">Anexo A: Validação Python</h3>
+                        <p class="text-slate-600 mb-4 text-sm flex-grow">Teste com script `ofxparse` confirmou a aderência à especificação.</p>
                         <img src="https://raw.githubusercontent.com/gustavo-clemente-foton/ios-ofx-export-study/main/exported-ofx-python.png" alt="Anexo A: Validação Automatizada (Python)" class="thumbnail w-full h-auto rounded-lg shadow-md" onclick="openModal(this)">
                     </div>
-                     <div>
-                        <h3 class="text-xl font-bold text-slate-700 mb-2">Anexo B: Validação em Aplicação Real</h3>
-                        <p class="text-slate-600 mb-4 text-sm">Importação bem-sucedida no software de finanças GnuCash.</p>
+                     <div class="flex flex-col">
+                        <h3 class="text-xl font-bold text-slate-700 mb-2">Anexo B: Validação GnuCash</h3>
+                        <p class="text-slate-600 mb-4 text-sm flex-grow">Importação bem-sucedida no software de finanças GnuCash.</p>
                         <img src="https://raw.githubusercontent.com/gustavo-clemente-foton/ios-ofx-export-study/main/exported-ofx-gnucash.png" alt="Anexo B: Validação em Aplicação Real (GnuCash)" class="thumbnail w-full h-auto rounded-lg shadow-md" onclick="openModal(this)">
+                    </div>
+                     <div class="flex flex-col">
+                        <h3 class="text-xl font-bold text-slate-700 mb-2">Anexo C: Validação XLSX</h3>
+                        <p class="text-slate-600 mb-4 text-sm flex-grow">POC com `libxlsxwriter` gerou planilha clara e funcional.</p>
+                        <img src="https://raw.githubusercontent.com/gustavo-clemente-foton/ios-ofx-export-study/main/exported-xlsx.png" alt="Anexo C: Resultado da Exportação para Excel (.xlsx)" class="thumbnail w-full h-auto rounded-lg shadow-md" onclick="openModal(this)">
                     </div>
                  </div>
             </section>
+
+            <section class="bg-white p-8 rounded-xl shadow-lg">
+                <h2 class="text-3xl font-bold text-[#005F73] text-center mb-8">3. Análise Técnica dos Formatos</h2>
+                <p class="text-slate-600 mb-8 max-w-3xl mx-auto text-center">A escolha correta dos valores para campos-chave como <code class="font-mono bg-slate-200 text-[#005F73] px-1 rounded">&lt;ACCTTYPE&gt;</code> e <code class="font-mono bg-slate-200 text-[#005F73] px-1 rounded">&lt;TRNTYPE&gt;</code> é fundamental para a compatibilidade OFX.</p>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full">
+                        <thead class="bg-slate-100">
+                            <tr>
+                                <th class="p-4 text-left text-sm font-semibold text-slate-900">Tag OFX</th>
+                                <th class="p-4 text-left text-sm font-semibold text-slate-900">Descrição</th>
+                                <th class="p-4 text-left text-sm font-semibold text-slate-900">Valores Possíveis / Formato</th>
+                                <th class="p-4 text-left text-sm font-semibold text-slate-900">Valor na POC</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-slate-200">
+                             <tr>
+                                <td class="p-4 font-mono text-sm text-slate-500">&lt;ACCTTYPE&gt;</td>
+                                <td class="p-4 text-sm text-slate-700">Tipo da Conta</td>
+                                <td class="p-4 text-sm text-slate-500 font-mono">CHECKING, SAVINGS</td>
+                                <td class="p-4 text-sm text-slate-700"><span class="font-semibold text-teal-600">CHECKING</span></td>
+                            </tr>
+                             <tr>
+                                <td class="p-4 font-mono text-sm text-slate-500">&lt;TRNTYPE&gt;</td>
+                                <td class="p-4 text-sm text-slate-700">Tipo da Transação</td>
+                                <td class="p-4 text-sm text-slate-500 font-mono">CREDIT, DEBIT, PAYMENT, XFER</td>
+                                <td class="p-4 text-sm text-slate-700"><span class="font-semibold text-teal-600">CREDIT, PAYMENT</span></td>
+                            </tr>
+                              <tr>
+                                <td class="p-4 font-mono text-sm text-slate-500">&lt;DTPOSTED&gt;</td>
+                                <td class="p-4 text-sm text-slate-700">Data do Lançamento</td>
+                                <td class="p-4 text-sm text-slate-500 font-mono">YYYYMMDD</td>
+                                <td class="p-4 text-sm text-slate-700"><span class="font-semibold text-teal-600">20250608</span></td>
+                            </tr>
+                             <tr>
+                                <td class="p-4 font-mono text-sm text-slate-500">&lt;TRNAMT&gt;</td>
+                                <td class="p-4 text-sm text-slate-700">Valor da Transação</td>
+                                <td class="p-4 text-sm text-slate-500 font-mono">Decimal com `.`</td>
+                                <td class="p-4 text-sm text-slate-700"><span class="font-semibold text-teal-600">4500.00</span>, <span class="font-semibold text-red-600">-150.75</span></td>
+                            </tr>
+                             <tr>
+                                <td class="p-4 font-mono text-sm text-slate-500">&lt;FITID&gt;</td>
+                                <td class="p-4 text-sm text-slate-700">ID Único da Transação</td>
+                                <td class="p-4 text-sm text-slate-500 font-mono">String (UUID)</td>
+                                <td class="p-4 text-sm text-slate-700"><span class="font-semibold text-teal-600">UUID Gerado</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
             
             <section class="bg-white p-8 rounded-xl shadow-lg">
-                <h2 class="text-3xl font-bold text-[#005F73] text-center mb-8">3. Prova de Conceito (POC) para XLSX</h2>
-                <p class="text-slate-600 mb-8 max-w-3xl mx-auto text-center">Para demonstrar a versatilidade da equipe, realizamos uma segunda POC para a geração de planilhas Excel (.xlsx). Utilizamos a biblioteca C nativa **`libxlsxwriter`**, conhecida por sua eficiência e por não ter dependências externas, ideal para o ambiente iOS.</p>
-                <div>
-                    <h3 class="text-xl font-bold text-slate-700 mb-2 text-center">Anexo C: Resultado da Exportação para Excel</h3>
-                    <p class="text-slate-600 mb-4 text-sm text-center">A planilha gerada preserva a estrutura dos dados, com formatação clara e pronta para análise pelo usuário.</p>
-                    <img src="https://raw.githubusercontent.com/gustavo-clemente-foton/ios-ofx-export-study/main/exported-xlsx.png" alt="Anexo C: Resultado da Exportação para Excel (.xlsx)" class="thumbnail w-full h-auto rounded-lg shadow-md max-w-3xl mx-auto" onclick="openModal(this)">
-                </div>
-            </section>
-
-             <section class="bg-white p-8 rounded-xl shadow-lg">
-                <h2 class="text-3xl font-bold text-[#005F73] text-center mb-8">4. Decodificando o Padrão OFX: Tipos de Dados</h2>
-                <p class="text-slate-600 mb-8 max-w-3xl mx-auto text-center">A escolha correta dos valores para campos-chave como <code class="font-mono bg-slate-200 text-[#005F73] px-1 rounded">&lt;ACCTTYPE&gt;</code> e <code class="font-mono bg-slate-200 text-[#005F73] px-1 rounded">&lt;TRNTYPE&gt;</code> é fundamental para a compatibilidade OFX.</p>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    <div class="bg-slate-50 p-6 rounded-lg border border-slate-200">
-                        <h3 class="text-xl font-bold text-[#005F73] mb-4">Tipos de Conta (`&lt;ACCTTYPE&gt;`)</h3>
-                        <ul class="space-y-3">
-                            <li class="flex justify-between items-center"><span><span class="font-semibold">CHECKING</span> - Conta Corrente/Pagamentos</span> <span class="highlight-badge">✔ Valor na POC</span></li>
-                            <li class="flex justify-between items-center"><span><span class="font-semibold">SAVINGS</span> - Conta Poupança</span></li>
-                        </ul>
-                    </div>
-                    <div class="bg-slate-50 p-6 rounded-lg border border-slate-200">
-                        <h3 class="text-xl font-bold text-[#005F73] mb-4">Tipos de Transação (`&lt;TRNTYPE&gt;`)</h3>
-                         <ul class="space-y-3">
-                            <li class="flex justify-between items-center"><span><span class="font-semibold">CREDIT</span> - Crédito genérico / Depósito</span><span class="highlight-badge">✔ Valor na POC</span></li>
-                            <li class="flex justify-between items-center"><span><span class="font-semibold">PAYMENT</span> - Pagamento de conta/boleto</span><span class="highlight-badge">✔ Valor na POC</span></li>
-                            <li class="flex justify-between items-center"><span><span class="font-semibold">DEBIT</span> - Débito genérico / Saque</span></li>
-                        </ul>
-                    </div>
-                </div>
-            </section>
-
-            <section class="bg-white p-8 rounded-xl shadow-lg">
-                <h2 class="text-3xl font-bold text-[#005F73] text-center mb-2">5. Fatores Críticos de Sucesso para OFX</h2>
+                <h2 class="text-3xl font-bold text-[#005F73] text-center mb-2">4. Fatores Críticos de Sucesso para OFX</h2>
                 <p class="text-slate-600 mb-8 max-w-3xl mx-auto text-center">Para garantir a qualidade e confiabilidade da feature, a implementação deve seguir rigorosamente as seguintes diretrizes, todas validadas na POC:</p>
                 <div class="chart-container">
                     <canvas id="criticalFactorsChart"></canvas>
@@ -208,7 +326,7 @@
             </section>
             
             <section class="bg-white p-8 rounded-xl shadow-lg">
-                <h2 class="text-3xl font-bold text-[#005F73] text-center mb-8">6. Conclusão e Próximos Passos</h2>
+                <h2 class="text-3xl font-bold text-[#005F73] text-center mb-8">5. Conclusão e Próximos Passos</h2>
                 <p class="text-slate-600 mb-8 max-w-3xl mx-auto text-center">As Provas de Conceito demonstraram que a equipe possui o conhecimento técnico necessário e que a implementação da exportação em múltiplos formatos (OFX e XLSX) é uma adição de alto valor e baixo risco para o aplicativo Caixa Tem.</p>
                  <ul class="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto text-center">
                     <li class="bg-slate-50 p-4 rounded-lg border-t-4 border-teal-400">
@@ -327,8 +445,9 @@
         function openModal(element) {
             event.stopPropagation();
             modal.style.display = "block";
+            // Slight delay for the opacity transition to be visible
             requestAnimationFrame(() => {
-                modal.style.opacity = 1;
+                 modal.style.opacity = 1;
             });
             modalImg.src = element.src;
             modalCaption.innerHTML = element.alt;
@@ -341,8 +460,6 @@
             }, 300);
         }
     </script>
-    
 
 </body>
 </html>
-
