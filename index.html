@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Estudo de Viabilidade: Exportação de Extrato OFX 2.3.0 no Caixa Tem</title>
+    <title>Estudo de Viabilidade: Exportação de Extrato OFX e XLSX no Caixa Tem</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -11,19 +11,13 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <!-- 
     Plano da Narrativa:
-    1. Introdução: Apresentação do estudo, objetivo e conclusão positiva.
+    1. Introdução: Apresentação do estudo, objetivo e conclusão positiva sobre MÚLTIPLOS formatos.
     2. O Desafio Estratégico: Por que a interoperabilidade é crucial para o Caixa Tem.
-    3. Prova de Conceito (POC): Demonstração do sucesso, mostrando que a geração via iOS é viável.
-    4. Validação Cruzada: Prova de compatibilidade com ferramentas de mercado.
-    5. Decodificando o Padrão OFX: Explicação didática da estrutura e dos tipos de dados.
+    3. Prova de Conceito OFX: Foco na validação do padrão financeiro.
+    4. Prova de Conceito XLSX: Foco na validação do formato de planilhas.
+    5. Análise Comparativa e Técnica: Detalhes dos formatos e tipos de dados.
     6. Fatores Críticos de Sucesso: Checklist das regras de implementação que garantem a qualidade.
     7. Próximos Passos e Conclusão: Sumário do valor agregado e o caminho para produção.
-
-    Escolha de Visualizações (Sem SVG/Mermaid):
-    - Estrutura OFX -> Fluxograma com `div` e `border` do Tailwind.
-    - Tipos de Dados -> Listas estilizadas com destaques para valores do exemplo.
-    - Criticidade dos Campos -> Gráfico de Barras Horizontais com Chart.js/Canvas.
-    - Checklist -> Lista estilizada com HTML/CSS e ícones Unicode.
 
     Confirmação: Nenhum SVG ou Mermaid.js foi utilizado na geração deste artefato. Toda a visualização é feita com HTML/CSS/Tailwind ou via Canvas com a biblioteca Chart.js.
     
@@ -45,32 +39,6 @@
         }
         @media (min-width: 768px) { .chart-container { height: 400px; } }
         
-        .flow-box {
-            border: 2px solid #94D2BD;
-            background-color: white;
-            padding: 1rem;
-            border-radius: 0.5rem;
-            text-align: center;
-            font-weight: 600;
-            color: #005F73;
-            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-        }
-        .flow-arrow {
-            font-size: 2rem;
-            color: #94D2BD;
-            transform: rotate(90deg);
-        }
-        @media (min-width: 768px) { .flow-arrow { transform: rotate(0deg); } }
-
-        .highlight-badge {
-            background-color: #fef3c7;
-            color: #b45309;
-            font-size: 0.75rem;
-            font-weight: 600;
-            padding: 2px 8px;
-            border-radius: 9999px;
-            margin-left: 8px;
-        }
         .code-block {
             background-color: #0F172A;
             color: #E2E8F0;
@@ -81,23 +49,6 @@
             white-space: pre-wrap;
             overflow-x: auto;
             max-height: 400px;
-        }
-        .code-block .tag { color: #60A5FA; }
-        .code-block .attr-name { color: #93C5FD; }
-        .code-block .attr-value { color: #A5B4FC; }
-        .code-block .content { color: #E2E8F0; }
-        .placeholder-image {
-            border: 2px dashed #94D2BD;
-            background-color: #f0fdfa;
-            color: #0A9396;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 0.5rem;
-            padding: 2rem;
-            text-align: center;
-            font-weight: 600;
-            min-height: 200px;
         }
         .section-title {
             font-size: 2.25rem;
@@ -110,6 +61,66 @@
             border-bottom: 3px solid #94D2BD;
             display: inline-block;
         }
+        .thumbnail {
+            cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border: 1px solid #e2e8f0;
+        }
+        .thumbnail:hover {
+            transform: scale(1.03);
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -2px rgb(0 0 0 / 0.1);
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            padding-top: 60px;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.9);
+            transition: opacity 0.3s ease;
+        }
+        .modal-content {
+            margin: auto;
+            display: block;
+            width: 90%;
+            max-width: 1200px;
+            transition: transform 0.3s ease;
+        }
+        .modal.show .modal-content {
+            transform: scale(1);
+        }
+         .modal .modal-content {
+            transform: scale(0.95);
+        }
+        .modal-caption {
+            margin: auto;
+            display: block;
+            width: 80%;
+            max-width: 700px;
+            text-align: center;
+            color: #ccc;
+            padding: 10px 0;
+            height: 150px;
+        }
+        .modal-close {
+            position: absolute;
+            top: 15px;
+            right: 35px;
+            color: #f1f1f1;
+            font-size: 40px;
+            font-weight: bold;
+            transition: 0.3s;
+            cursor: pointer;
+        }
+        .modal-close:hover,
+        .modal-close:focus {
+            color: #bbb;
+            text-decoration: none;
+        }
     </style>
 </head>
 <body class="text-slate-800">
@@ -118,7 +129,7 @@
         
         <header class="text-center mb-12 md:mb-16">
             <p class="text-lg font-semibold text-[#0A9396]">Estudo de Viabilidade Técnica</p>
-            <h1 class="text-4xl md:text-5xl font-bold text-[#005F73] mb-4">Implementação da Exportação de Extrato OFX no App Caixa Tem</h1>
+            <h1 class="text-4xl md:text-5xl font-bold text-[#005F73] mb-4">Implementação da Exportação de Extrato (OFX e XLSX) no App Caixa Tem</h1>
             <p class="text-slate-500 text-sm">Preparado por: Gustavo Clemente, Foton | Desenvolvedor iOS, Projeto Caixa Tem</p>
             <p class="text-slate-500 text-sm">Data: 13/06/2025</p>
         </header>
@@ -127,121 +138,54 @@
 
             <section class="bg-white p-8 rounded-xl shadow-lg border-l-8 border-[#0A9396]">
                 <h2 class="text-3xl font-bold text-[#005F73] mb-4">Resumo Executivo e Conclusão</h2>
-                <p class="text-slate-600 mb-4 text-lg">Este estudo foi conduzido para avaliar a viabilidade de implementar uma nova funcionalidade no aplicativo Caixa Tem para iOS: a **exportação do extrato do cliente no formato padrão de mercado OFX 2.3.0**. O objetivo é aumentar o valor percebido do aplicativo, promovendo a interoperabilidade e o empoderamento do cliente sobre seus dados financeiros.</p>
+                <p class="text-slate-600 mb-4 text-lg">Este estudo foi conduzido para avaliar a viabilidade de implementar uma nova funcionalidade no aplicativo Caixa Tem para iOS: a **exportação do extrato do cliente em múltiplos formatos**, com foco no padrão de mercado **OFX 2.3.0** e no universalmente aceito **XLSX (Excel)**. O objetivo é aumentar o valor percebido do aplicativo, promovendo a máxima interoperabilidade e o empoderamento do cliente sobre seus dados financeiros.</p>
                 <div class="font-semibold text-[#005F73] bg-teal-50 p-6 rounded-lg border border-teal-200">
                     <p class="text-xl">A conclusão final é que a implementação é <span class="font-extrabold">totalmente viável</span>, de baixo risco técnico e de alto valor estratégico para o produto.</p>
-                    <p class="mt-2">Realizamos uma Prova de Conceito (POC) que demonstrou a capacidade de gerar, diretamente do front-end iOS, um arquivo OFX bem-formado, completo e compatível com as especificações, validado por ferramentas externas.</p>
+                    <p class="mt-2">Realizamos Provas de Conceito (POCs) bem-sucedidas para ambos os formatos, demonstrando a capacidade de gerar, diretamente do front-end iOS, arquivos válidos e compatíveis com as especificações e ferramentas de mercado.</p>
                 </div>
             </section>
             
             <section class="text-center">
-                <h2 class="section-title">1. O Desafio Estratégico: Por que OFX?</h2>
-                <p class="text-slate-600 mb-8 max-w-3xl mx-auto text-lg">Em um ecossistema financeiro aberto, permitir que os clientes utilizem seus dados em outras plataformas não é apenas uma funcionalidade, é um pilar de confiança e retenção. A exportação OFX posiciona o Caixa Tem como um aplicativo moderno e alinhado às melhores práticas do mercado.</p>
+                <h2 class="section-title">1. O Desafio Estratégico: Por que Múltiplos Formatos?</h2>
+                <p class="text-slate-600 mb-8 max-w-3xl mx-auto text-lg">Oferecer múltiplos formatos de exportação atende a diferentes perfis de usuário. Enquanto o **OFX** é o padrão para integração automatizada com softwares financeiros, o **XLSX** oferece flexibilidade para análises manuais, planilhas personalizadas e uso em uma vasta gama de aplicações, consolidando o Caixa Tem como uma ferramenta financeira completa.</p>
             </section>
             
             <section class="bg-white p-8 rounded-xl shadow-lg">
-                <h2 class="text-3xl font-bold text-[#005F73] text-center mb-8">2. Prova de Conceito (POC): Sucesso na Prática</h2>
-                <p class="text-slate-600 mb-8 max-w-3xl mx-auto text-center">Para validar a viabilidade, desenvolvemos um protótipo em Swift que consome dados de transação e gera um arquivo OFX. O processo foi um sucesso, resultando no arquivo final abaixo, que passou em todas as nossas verificações de conformidade.</p>
-                <div class="code-block max-w-4xl mx-auto">
-                    <pre><code>&lt;?xml version="1.0" encoding="UTF-8" standalone="no"?&gt;
-&lt;?OFX OFXHEADER="200" VERSION="230" SECURITY="NONE" OLDFILEUID="NONE" NEWFILEUID="DC4CE596-08C6-4E35-993B-229245AF7036"?&gt;
-&lt;OFX&gt;
-  &lt;SIGNONMSGSRSV1&gt;
-    &lt;SONRS&gt;
-      &lt;STATUS&gt;
-        &lt;CODE&gt;0&lt;/CODE&gt;
-        &lt;SEVERITY&gt;INFO&lt;/SEVERITY&gt;
-      &lt;/STATUS&gt;
-      &lt;DTSERVER&gt;20250612164943&lt;/DTSERVER&gt;
-      &lt;USERID&gt;ana.oliveira&lt;/USERID&gt;
-      &lt;LANGUAGE&gt;POR&lt;/LANGUAGE&gt;
-      &lt;FI&gt;
-        &lt;ORG&gt;Meu Banco Digital&lt;/ORG&gt;
-        &lt;FID&gt;341&lt;/FID&gt;
-      &lt;/FI&gt;
-      &lt;APPID&gt;MeuAppFinanceiro&lt;/APPID&gt;
-      &lt;APPVER&gt;1.0&lt;/APPVER&gt;
-    &lt;/SONRS&gt;
-  &lt;/SIGNONMSGSRSV1&gt;
-  &lt;BANKMSGSRSV1&gt;
-    &lt;STMTTRNRS&gt;
-      &lt;TRNUID&gt;DC4CE596-08C6-4E35-993B-229245AF7036&lt;/TRNUID&gt;
-      &lt;STATUS&gt;&lt;CODE&gt;0&lt;/CODE&gt;&lt;SEVERITY&gt;INFO&lt;/SEVERITY&gt;&lt;/STATUS&gt;
-      &lt;STMTRS&gt;
-        &lt;CURDEF&gt;BRL&lt;/CURDEF&gt;
-        &lt;BANKACCTFROM&gt;
-          &lt;BANKID&gt;341&lt;/BANKID&gt;
-          &lt;BRANCHID&gt;1234&lt;/BRANCHID&gt;
-          &lt;ACCTID&gt;56789-0&lt;/ACCTID&gt;
-          &lt;ACCTTYPE&gt;CHECKING&lt;/ACCTTYPE&gt;
-        &lt;/BANKACCTFROM&gt;
-        &lt;BANKTRANLIST&gt;
-          &lt;DTSTART&gt;20250608&lt;/DTSTART&gt;
-          &lt;DTEND&gt;20250609&lt;/DTEND&gt;
-          &lt;STMTTRN&gt;
-            &lt;TRNTYPE&gt;CREDIT&lt;/TRNTYPE&gt;
-            &lt;DTPOSTED&gt;20250608&lt;/DTPOSTED&gt;
-            &lt;TRNAMT&gt;4500.00&lt;/TRNAMT&gt;
-            &lt;FITID&gt;2E7EF775-A0EE-426A-B6ED-C510F091A225&lt;/FITID&gt;
-            &lt;NAME&gt;SALARIO&lt;/NAME&gt;
-            &lt;MEMO&gt;Maio&lt;/MEMO&gt;
-          &lt;/STMTTRN&gt;
-          &lt;STMTTRN&gt;
-            &lt;TRNTYPE&gt;PAYMENT&lt;/TRNTYPE&gt;
-            &lt;DTPOSTED&gt;20250609&lt;/DTPOSTED&gt;
-            &lt;TRNAMT&gt;-150.75&lt;/TRNAMT&gt;
-            &lt;FITID&gt;E8B0EB39-F227-4BFD-8C06-366D6200EB06&lt;/FITID&gt;
-            &lt;NAME&gt;CONTA LUZ&lt;/NAME&gt;
-            &lt;MEMO&gt;CPFL&lt;/MEMO&gt;
-          &lt;/STMTTRN&gt;
-        &lt;/BANKTRANLIST&gt;
-        &lt;LEDGERBAL&gt;
-          &lt;BALAMT&gt;4874.75&lt;/BALAMT&gt;
-          &lt;DTASOF&gt;20250612164943&lt;/DTASOF&gt;
-        &lt;/LEDGERBAL&gt;
-        &lt;AVAILBAL&gt;
-          &lt;BALAMT&gt;4874.75&lt;/BALAMT&gt;
-          &lt;DTASOF&gt;20250612164943&lt;/DTASOF&gt;
-        &lt;/AVAILBAL&gt;
-      &lt;/STMTRS&gt;
-    &lt;/STMTTRNRS&gt;
-  &lt;/BANKMSGSRSV1&gt;
-&lt;/OFX&gt;</code></pre>
+                <h2 class="text-3xl font-bold text-[#005F73] text-center mb-8">2. Prova de Conceito (POC) para OFX</h2>
+                <p class="text-slate-600 mb-8 max-w-3xl mx-auto text-center">A primeira POC validou a geração de arquivos no padrão OFX 2.3.0. O arquivo gerado foi testado com sucesso, garantindo a compatibilidade com sistemas financeiros.</p>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div>
+                        <h3 class="text-xl font-bold text-slate-700 mb-2">Anexo A: Validação Automatizada</h3>
+                        <p class="text-slate-600 mb-4 text-sm">Teste com script Python confirmou a aderência à especificação.</p>
+                        <img src="https://raw.githubusercontent.com/gustavo-clemente-foton/ios-ofx-export-study/main/exported-ofx-python.png" alt="Anexo A: Validação Automatizada (Python)" class="thumbnail w-full h-auto rounded-lg shadow-md" onclick="openModal(this)">
+                    </div>
+                     <div>
+                        <h3 class="text-xl font-bold text-slate-700 mb-2">Anexo B: Validação em Aplicação Real</h3>
+                        <p class="text-slate-600 mb-4 text-sm">Importação bem-sucedida no software de finanças GnuCash.</p>
+                        <img src="https://raw.githubusercontent.com/gustavo-clemente-foton/ios-ofx-export-study/main/exported-ofx-gnucash.png" alt="Anexo B: Validação em Aplicação Real (GnuCash)" class="thumbnail w-full h-auto rounded-lg shadow-md" onclick="openModal(this)">
+                    </div>
+                 </div>
+            </section>
+            
+            <section class="bg-white p-8 rounded-xl shadow-lg">
+                <h2 class="text-3xl font-bold text-[#005F73] text-center mb-8">3. Prova de Conceito (POC) para XLSX</h2>
+                <p class="text-slate-600 mb-8 max-w-3xl mx-auto text-center">Para demonstrar a versatilidade da equipe, realizamos uma segunda POC para a geração de planilhas Excel (.xlsx). Utilizamos a biblioteca C nativa **`libxlsxwriter`**, conhecida por sua eficiência e por não ter dependências externas, ideal para o ambiente iOS.</p>
+                <div>
+                    <h3 class="text-xl font-bold text-slate-700 mb-2 text-center">Anexo C: Resultado da Exportação para Excel</h3>
+                    <p class="text-slate-600 mb-4 text-sm text-center">A planilha gerada preserva a estrutura dos dados, com formatação clara e pronta para análise pelo usuário.</p>
+                    <img src="https://raw.githubusercontent.com/gustavo-clemente-foton/ios-ofx-export-study/main/exported-xlsx.png" alt="Anexo C: Resultado da Exportação para Excel (.xlsx)" class="thumbnail w-full h-auto rounded-lg shadow-md max-w-3xl mx-auto" onclick="openModal(this)">
                 </div>
             </section>
 
              <section class="bg-white p-8 rounded-xl shadow-lg">
-                <h2 class="text-3xl font-bold text-[#005F73] text-center mb-8">3. Validação Cruzada e Prova de Compatibilidade</h2>
-                <p class="text-slate-600 mb-8 max-w-3xl mx-auto text-center">Um arquivo OFX só tem valor se for aceito pelas ferramentas de mercado. Para garantir a máxima compatibilidade, validamos o arquivo gerado pela nossa POC em duas frentes distintas, com 100% de sucesso em ambas.</p>
-                 <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    <div>
-                        <h3 class="text-xl font-bold text-slate-700 mb-2">Validação Automatizada (Python)</h3>
-                        <p class="text-slate-600 mb-4">Utilizamos um framework de testes em Python, com a biblioteca `ofxparse`, para verificar programaticamente a aderência do arquivo à especificação OFX 2.3.0. Nenhum erro estrutural ou de formato foi encontrado.</p>
-                        <div class="placeholder-image">
-                            [ Anexo A: Captura de Tela do Validador Python ]
-                        </div>
-                    </div>
-                     <div>
-                        <h3 class="text-xl font-bold text-slate-700 mb-2">Validação em Aplicação Real (GnuCash)</h3>
-                        <p class="text-slate-600 mb-4">O arquivo foi importado com sucesso no **GnuCash**, um dos mais populares softwares de gestão financeira open-source do mundo. As transações, saldos e datas foram interpretados e exibidos corretamente.</p>
-                        <div class="placeholder-image">
-                            [ Anexo B: Captura de Tela da Importação no GnuCash ]
-                        </div>
-                    </div>
-                 </div>
-            </section>
-
-             <section class="bg-white p-8 rounded-xl shadow-lg">
-                <h2 class="text-3xl font-bold text-[#005F73] text-center mb-8">4. Decodificando o Padrão: Tipos de Dados e Opções</h2>
-                <p class="text-slate-600 mb-8 max-w-3xl mx-auto text-center">A escolha correta dos valores para campos-chave como `<ACCTTYPE>` e `<TRNTYPE>` é fundamental para a compatibilidade. Nossa POC utilizou os tipos mais adequados para as operações do Caixa Tem.</p>
+                <h2 class="text-3xl font-bold text-[#005F73] text-center mb-8">4. Decodificando o Padrão OFX: Tipos de Dados</h2>
+                <p class="text-slate-600 mb-8 max-w-3xl mx-auto text-center">A escolha correta dos valores para campos-chave como <code class="font-mono bg-slate-200 text-[#005F73] px-1 rounded">&lt;ACCTTYPE&gt;</code> e <code class="font-mono bg-slate-200 text-[#005F73] px-1 rounded">&lt;TRNTYPE&gt;</code> é fundamental para a compatibilidade OFX.</p>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                     <div class="bg-slate-50 p-6 rounded-lg border border-slate-200">
                         <h3 class="text-xl font-bold text-[#005F73] mb-4">Tipos de Conta (`&lt;ACCTTYPE&gt;`)</h3>
                         <ul class="space-y-3">
                             <li class="flex justify-between items-center"><span><span class="font-semibold">CHECKING</span> - Conta Corrente/Pagamentos</span> <span class="highlight-badge">✔ Valor na POC</span></li>
                             <li class="flex justify-between items-center"><span><span class="font-semibold">SAVINGS</span> - Conta Poupança</span></li>
-                            <li class="flex justify-between items-center"><span><span class="font-semibold">MONEYMRKT</span> - Conta de Mercado Monetário</span></li>
-                            <li class="flex justify-between items-center"><span><span class="font-semibold">CREDITLINE</span> - Linha de Crédito</span></li>
                         </ul>
                     </div>
                     <div class="bg-slate-50 p-6 rounded-lg border border-slate-200">
@@ -250,16 +194,13 @@
                             <li class="flex justify-between items-center"><span><span class="font-semibold">CREDIT</span> - Crédito genérico / Depósito</span><span class="highlight-badge">✔ Valor na POC</span></li>
                             <li class="flex justify-between items-center"><span><span class="font-semibold">PAYMENT</span> - Pagamento de conta/boleto</span><span class="highlight-badge">✔ Valor na POC</span></li>
                             <li class="flex justify-between items-center"><span><span class="font-semibold">DEBIT</span> - Débito genérico / Saque</span></li>
-                            <li class="flex justify-between items-center"><span><span class="font-semibold">XFER</span> - Transferência entre contas</span></li>
-                            <li class="flex justify-between items-center"><span><span class="font-semibold">FEE</span> - Cobrança de Tarifa</span></li>
-                            <li class="flex justify-between items-center"><span><span class="font-semibold">INTEREST</span> - Juros ou Rendimento</span></li>
                         </ul>
                     </div>
                 </div>
             </section>
 
             <section class="bg-white p-8 rounded-xl shadow-lg">
-                <h2 class="text-3xl font-bold text-[#005F73] text-center mb-2">5. Fatores Críticos de Sucesso</h2>
+                <h2 class="text-3xl font-bold text-[#005F73] text-center mb-2">5. Fatores Críticos de Sucesso para OFX</h2>
                 <p class="text-slate-600 mb-8 max-w-3xl mx-auto text-center">Para garantir a qualidade e confiabilidade da feature, a implementação deve seguir rigorosamente as seguintes diretrizes, todas validadas na POC:</p>
                 <div class="chart-container">
                     <canvas id="criticalFactorsChart"></canvas>
@@ -268,12 +209,12 @@
             
             <section class="bg-white p-8 rounded-xl shadow-lg">
                 <h2 class="text-3xl font-bold text-[#005F73] text-center mb-8">6. Conclusão e Próximos Passos</h2>
-                <p class="text-slate-600 mb-8 max-w-3xl mx-auto text-center">A Prova de Conceito demonstrou que a equipe possui o conhecimento técnico necessário e que a implementação da exportação OFX é uma adição de alto valor e baixo risco para o aplicativo Caixa Tem. O resultado será um app mais competitivo e alinhado às expectativas dos usuários modernos.</p>
+                <p class="text-slate-600 mb-8 max-w-3xl mx-auto text-center">As Provas de Conceito demonstraram que a equipe possui o conhecimento técnico necessário e que a implementação da exportação em múltiplos formatos (OFX e XLSX) é uma adição de alto valor e baixo risco para o aplicativo Caixa Tem.</p>
                  <ul class="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto text-center">
                     <li class="bg-slate-50 p-4 rounded-lg border-t-4 border-teal-400">
                         <div class="text-2xl font-bold text-teal-600 mb-2">Fase 1</div>
                         <p class="font-semibold">Desenvolvimento</p>
-                        <p class="text-sm text-slate-500">Integrar a lógica `OFXGenerator` na UI do app e finalizar o fluxo do usuário.</p>
+                        <p class="text-sm text-slate-500">Integrar as lógicas de geração na UI do app e finalizar o fluxo do usuário para ambos os formatos.</p>
                     </li>
                      <li class="bg-slate-50 p-4 rounded-lg border-t-4 border-blue-400">
                         <div class="text-2xl font-bold text-blue-600 mb-2">Fase 2</div>
@@ -291,9 +232,16 @@
         </main>
 
         <footer class="text-center mt-16 pt-8 border-t border-slate-200">
-            <p class="text-slate-500">Estudo de Viabilidade da Exportação OFX 2.3.0</p>
+            <p class="text-slate-500">Estudo de Viabilidade da Exportação OFX e XLSX</p>
             <p class="text-sm text-slate-400">Caixa Tem | Inovação e Tecnologia Financeira</p>
         </footer>
+
+    </div>
+
+    <div id="imageModal" class="modal" onclick="closeModal()">
+        <span class="modal-close" onclick="closeModal()">&times;</span>
+        <img class="modal-content" id="modalImg">
+        <div id="modalCaption" class="modal-caption"></div>
     </div>
 
     <script>
@@ -354,33 +302,44 @@
                  responsive: true,
                  maintainAspectRatio: false,
                  scales: {
-                    x: {
-                        display: false,
-                        beginAtZero: true,
-                        max: 100
-                    },
-                    y: {
-                        grid: { display: false },
-                        ticks: { color: '#475569', font: {size: 14} }
-                    }
+                    x: { display: false, beginAtZero: true, max: 100 },
+                    y: { grid: { display: false }, ticks: { color: '#475569', font: {size: 14} } }
                  },
                  plugins: {
                     ...tooltipCallback.plugins,
-                    legend: {
-                        display: false
-                    },
+                    legend: { display: false },
                      title: {
                         display: true,
-                        text: 'Criticidade das Regras de Implementação',
+                        text: 'Criticidade das Regras de Implementação OFX',
                         font: { size: 16, weight: 'bold' },
                         color: '#005F73',
-                        padding: {
-                            bottom: 20
-                        }
+                        padding: { bottom: 20 }
                     }
                  }
             }
         });
+
+        // Modal Logic
+        const modal = document.getElementById('imageModal');
+        const modalImg = document.getElementById('modalImg');
+        const modalCaption = document.getElementById('modalCaption');
+        
+        function openModal(element) {
+            event.stopPropagation();
+            modal.style.display = "block";
+            requestAnimationFrame(() => {
+                modal.style.opacity = 1;
+            });
+            modalImg.src = element.src;
+            modalCaption.innerHTML = element.alt;
+        }
+
+        function closeModal() {
+            modal.style.opacity = 0;
+            setTimeout(() => {
+                modal.style.display = "none";
+            }, 300);
+        }
     </script>
 
 </body>
