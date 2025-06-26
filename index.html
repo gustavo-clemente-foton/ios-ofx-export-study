@@ -42,13 +42,14 @@
         .code-block {
             background-color: #0F172A;
             color: #E2E8F0;
-            padding: 1rem;
+            padding: 1.5rem;
             border-radius: 0.5rem;
             font-family: 'Courier New', Courier, monospace;
             font-size: 0.875rem;
+            line-height: 1.5;
             white-space: pre-wrap;
             overflow-x: auto;
-            max-height: 400px;
+            max-height: 500px;
         }
         .section-title {
             font-size: 2.25rem;
@@ -164,7 +165,7 @@
 
             <section class="bg-white p-8 rounded-xl shadow-lg border-l-8 border-[#0A9396]">
                 <h2 class="text-3xl font-bold text-[#005F73] mb-4">Resumo Executivo e Conclusão</h2>
-                <p class="text-slate-600 mb-4 text-lg">Este estudo foi conduzido para avaliar a viabilidade de implementar uma nova funcionalidade no aplicativo Caixa Tem para iOS: a **exportação do extrato do cliente em múltiplos formatos**, com foco no padrão de mercado **OFX 2.3.0** e no universalmente aceito **XLSX (Excel)**. O objetivo é aumentar o valor percebido do aplicativo, promovendo a máxima interoperabilidade e o empoderamento do cliente sobre seus dados financeiros.</p>
+                <p class="text-slate-600 mb-4 text-lg">Este estudo foi conduzido para avaliar a viabilidade de implementar uma nova funcionalidade no aplicativo Caixa Tem para iOS: a <b>exportação do extrato do cliente em múltiplos formatos</b>, com foco no padrão de mercado <b>OFX 2.3.0</b> e no universalmente aceito <b>XLSX (Excel)</b>. O objetivo é aumentar o valor percebido do aplicativo, promovendo a máxima interoperabilidade e o empoderamento do cliente sobre seus dados financeiros.</p>
                 <div class="font-semibold text-[#005F73] bg-teal-50 p-6 rounded-lg border border-teal-200">
                     <p class="text-xl">A conclusão final é que a implementação é <span class="font-extrabold">totalmente viável</span>, de baixo risco técnico e de alto valor estratégico para o produto.</p>
                     <p class="mt-2">Realizamos Provas de Conceito (POCs) bem-sucedidas para ambos os formatos, demonstrando a capacidade de gerar, diretamente do front-end iOS, arquivos válidos e compatíveis com as especificações e ferramentas de mercado.</p>
@@ -172,77 +173,74 @@
             </section>
             
             <section class="bg-white p-8 rounded-xl shadow-lg">
-                <h2 class="text-3xl font-bold text-[#005F73] text-center mb-8">1. Código-Fonte de Referência (Swift)</h2>
-                 <p class="text-slate-600 mb-8 max-w-3xl mx-auto text-center">A lógica de geração para OFX foi encapsulada na classe `OFXGenerator`. Este código é a base da nossa POC e serve como guia para a implementação final.</p>
+                <h2 class="text-3xl font-bold text-[#005F73] text-center mb-8">1. Arquivo OFX Gerado (Resultado da POC)</h2>
+                 <p class="text-slate-600 mb-8 max-w-3xl mx-auto text-center">Abaixo está o conteúdo completo do arquivo `.ofx` gerado pela Prova de Conceito. Este arquivo é 100% compatível com o padrão OFX 2.3.0 e pode ser validado por softwares financeiros como o GnuCash.</p>
                 <div class="code-block max-w-4xl mx-auto">
-                    <pre><code>// OFXGenerator.swift - Versão Corrigida e Alinhada
-import Foundation
-
-public final class OFXGenerator {
-    private let customer: Customer
-    // ... (demais propriedades)
-
-    public init(...) {
-        // ... (inicializadores)
-        // Configuração dos formatadores de data para o padrão OFX
-        self.ymdFormatter = DateFormatter()
-        self.ymdFormatter.dateFormat = "yyyyMMdd" 
-        // ...
-        self.fullDateFormatter = DateFormatter()
-        self.fullDateFormatter.dateFormat = "yyyyMMddHHmmss"
-        // ...
-    }
-
-    public func generate() -> String {
-        // ... (lógica de construção da string XML)
-        return xmlString
-    }
-
-    // MARK: - Métodos Privados de Construção
-    
-    private func buildSignOnBlock(serverDate: String) -> String {
-        // CORREÇÃO: Bloco alterado para Resposta (RS)
-        """
-          &lt;SIGNONMSGSRSV1&gt;
-            &lt;SONRS&gt;
-              &lt;STATUS&gt;
-                &lt;CODE&gt;0&lt;/CODE&gt;
-                &lt;SEVERITY&gt;INFO&lt;/SEVERITY&gt;
-              &lt;/STATUS&gt;
-              &lt;DTSERVER&gt;\\(serverDate)&lt;/DTSERVER&gt;
-              // ...
-            &lt;/SONRS&gt;
-          &lt;/SIGNONMSGSRSV1&gt;
-        """
-    }
-
-    private func buildPostedTransactionsList() -> String {
-        // ... (lógica de iteração e construção do bloco de transações)
-        for transaction in sortedTransactions {
-            let amountString = formatCurrency(transaction.amount) // Função crucial
-            listString += """
-                      &lt;STMTTRN&gt;
-                        // ...
-                        &lt;TRNAMT&gt;\\(amountString)&lt;/TRNAMT&gt;
-                        &lt;FITID&gt;\\(transaction.transactionId.escapingXMLCharacters)&lt;/FITID&gt;
-                        // ...
-                      &lt;/STMTTRN&gt;
-            """
-        }
-        return listString
-    }
-    
-    // Função auxiliar para garantir a formatação correta dos valores
-    private func formatCurrency(_ amount: Decimal) -> String {
-        let formatter = NumberFormatter()
-        formatter.minimumFractionDigits = 2
-        formatter.maximumFractionDigits = 2
-        formatter.decimalSeparator = "."
-        formatter.groupingSeparator = ""
-        return formatter.string(from: amount as NSDecimalNumber) ?? "0.00"
-    }
-}
-                    </code></pre>
+<pre><code>&lt;?xml version="1.0" encoding="UTF-8" standalone="no"?&gt;
+&lt;?OFX OFXHEADER="200" VERSION="230" SECURITY="NONE" OLDFILEUID="NONE" NEWFILEUID="DC4CE596-08C6-4E35-993B-229245AF7036"?&gt;
+&lt;OFX&gt;
+  &lt;SIGNONMSGSRSV1&gt;
+    &lt;SONRS&gt;
+      &lt;STATUS&gt;
+        &lt;CODE&gt;0&lt;/CODE&gt;
+        &lt;SEVERITY&gt;INFO&lt;/SEVERITY&gt;
+      &lt;/STATUS&gt;
+      &lt;DTSERVER&gt;20250612164943&lt;/DTSERVER&gt;
+      &lt;USERID&gt;ana.oliveira&lt;/USERID&gt;
+      &lt;LANGUAGE&gt;POR&lt;/LANGUAGE&gt;
+      &lt;FI&gt;
+        &lt;ORG&gt;Meu Banco Digital&lt;/ORG&gt;
+        &lt;FID&gt;341&lt;/FID&gt;
+      &lt;/FI&gt;
+      &lt;APPID&gt;MeuAppFinanceiro&lt;/APPID&gt;
+      &lt;APPVER&gt;1.0&lt;/APPVER&gt;
+    &lt;/SONRS&gt;
+  &lt;/SIGNONMSGSRSV1&gt;
+  &lt;BANKMSGSRSV1&gt;
+    &lt;STMTTRNRS&gt;
+      &lt;TRNUID&gt;DC4CE596-08C6-4E35-993B-229245AF7036&lt;/TRNUID&gt;
+      &lt;STATUS&gt;&lt;CODE&gt;0&lt;/CODE&gt;&lt;SEVERITY&gt;INFO&lt;/SEVERITY&gt;&lt;/STATUS&gt;
+      &lt;STMTRS&gt;
+        &lt;CURDEF&gt;BRL&lt;/CURDEF&gt;
+        &lt;BANKACCTFROM&gt;
+          &lt;BANKID&gt;341&lt;/BANKID&gt;
+          &lt;BRANCHID&gt;1234&lt;/BRANCHID&gt;
+          &lt;ACCTID&gt;56789-0&lt;/ACCTID&gt;
+          &lt;ACCTTYPE&gt;CHECKING&lt;/ACCTTYPE&gt;
+        &lt;/BANKACCTFROM&gt;
+        &lt;BANKTRANLIST&gt;
+          &lt;DTSTART&gt;20250608&lt;/DTSTART&gt;
+          &lt;DTEND&gt;20250609&lt;/DTEND&gt;
+          &lt;STMTTRN&gt;
+            &lt;TRNTYPE&gt;CREDIT&lt;/TRNTYPE&gt;
+            &lt;DTPOSTED&gt;20250608&lt;/DTPOSTED&gt;
+            &lt;TRNAMT&gt;4500.00&lt;/TRNAMT&gt;
+            &lt;FITID&gt;2E7EF775-A0EE-426A-B6ED-C510F091A225&lt;/FITID&gt;
+            &lt;NAME&gt;SALARIO&lt;/NAME&gt;
+            &lt;MEMO&gt;Maio&lt;/MEMO&gt;
+          &lt;/STMTTRN&gt;
+          &lt;STMTTRN&gt;
+            &lt;TRNTYPE&gt;PAYMENT&lt;/TRNTYPE&gt;
+            &lt;DTPOSTED&gt;20250609&lt;/DTPOSTED&gt;
+            &lt;TRNAMT&gt;-150.75&lt;/TRNAMT&gt;
+            &lt;FITID&gt;E8B0EB39-F227-4BFD-8C06-366D6200EB06&lt;/FITID&gt;
+            &lt;NAME&gt;CONTA LUZ&lt;/NAME&gt;
+            &lt;MEMO&gt;CPFL&lt;/MEMO&gt;
+          &lt;/STMTTRN&gt;
+        &lt;/BANKTRANLIST&gt;
+        &lt;LEDGERBAL&gt;
+          &lt;BALAMT&gt;4874.75&lt;/BALAMT&gt;
+          &lt;DTASOF&gt;20250612164943&lt;/DTASOF&gt;
+        &lt;/LEDGERBAL&gt;
+        &lt;AVAILBAL&gt;
+          &lt;BALAMT&gt;4874.75&lt;/BALAMT&gt;
+          &lt;DTASOF&gt;20250612164943&lt;/DTASOF&gt;
+        &lt;/AVAILBAL&gt;
+      &lt;/STMTRS&gt;
+    &lt;/STMTTRNRS&gt;
+  &lt;/BANKMSGSRSV1&gt;
+&lt;/OFX&gt;
+</code></pre>
                 </div>
             </section>
             
@@ -266,6 +264,20 @@ public final class OFXGenerator {
                         <img src="https://raw.githubusercontent.com/gustavo-clemente-foton/ios-ofx-export-study/main/exported-xlsx.png" alt="Anexo C: Resultado da Exportação para Excel (.xlsx)" class="thumbnail w-full h-auto rounded-lg shadow-md" onclick="openModal(this)">
                     </div>
                  </div>
+                 <!-- NOVA SEÇÃO ADICIONADA -->
+                 <div class="mt-8 pt-6 border-t border-slate-200">
+                    <h4 class="text-lg font-semibold text-center text-slate-700 mb-4">Acesse os Arquivos da Prova de Conceito (POC)</h4>
+                    <div class="flex flex-col md:flex-row justify-center items-center gap-4">
+                        <a href="https://github.com/gustavo-clemente-foton/ios-ofx-export-study/blob/main/extrato-2025-06-09.ofx" target="_blank" rel="noopener noreferrer" class="flex items-center space-x-3 bg-teal-50 hover:bg-teal-100 text-teal-800 font-semibold py-3 px-6 rounded-lg transition duration-300 ease-in-out border border-teal-200 shadow-sm w-full md:w-auto justify-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+                            <span>Baixar Arquivo .OFX</span>
+                        </a>
+                        <a href="https://github.com/gustavo-clemente-foton/ios-ofx-export-study/blob/main/extrato-2025-06-09.xlsx" target="_blank" rel="noopener noreferrer" class="flex items-center space-x-3 bg-green-50 hover:bg-green-100 text-green-800 font-semibold py-3 px-6 rounded-lg transition duration-300 ease-in-out border border-green-200 shadow-sm w-full md:w-auto justify-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+                            <span>Baixar Arquivo .XLSX</span>
+                        </a>
+                    </div>
+                </div>
             </section>
 
             <section class="bg-white p-8 rounded-xl shadow-lg">
@@ -405,7 +417,7 @@ public final class OFXGenerator {
         new Chart(criticalFactorsCtx, {
             type: 'bar',
             data: {
-                labels: processLabels(['Unicidade do FITID', 'Sinais Corretos (TRNAMT)', 'Formato de Datas e Horas', 'Estrutura de Resposta (RS)', 'Codificação (UTF-8)']),
+                labels: processLabels(['Unicidade do FITID', 'Sinais Corretos (TRNAMT)', 'Formato de Datas (YYYYMMDD)', 'Estrutura de Resposta (RS)', 'Codificação (UTF-8)']),
                 datasets: [{
                     label: 'Nível de Importância',
                     data: [100, 98, 95, 90, 85],
@@ -445,7 +457,6 @@ public final class OFXGenerator {
         function openModal(element) {
             event.stopPropagation();
             modal.style.display = "block";
-            // Slight delay for the opacity transition to be visible
             requestAnimationFrame(() => {
                  modal.style.opacity = 1;
             });
